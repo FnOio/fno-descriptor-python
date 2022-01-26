@@ -2,6 +2,22 @@
 
 Convenience tool for creating FnO function & parameter descriptions from Python functions.
 
+Manually describing functions can be time-consuming and error-prone.
+The `fno-descriptor-python` enables you to quickly define a function signature
+in Python,
+and generates its corresponding FnO descriptions by leveraging Python
+type-hinting.
+
+## Supported
+
+- [x] `fno:Parameter`
+- [x] `fno:ParameterMapping`
+- [x] `fno:Output`
+- [x] `fno:ReturnMapping`
+- [ ] `fno:Function`
+- [ ] `fno:Mapping` 
+- [ ] `fno:MethodMapping`
+
 ## Usage example (`main.py`)
 
 The example describes the following Python function
