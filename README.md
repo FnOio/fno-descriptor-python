@@ -17,34 +17,35 @@ type-hinting.
 - [ ] `fno:Function`
 - [ ] `fno:Mapping` 
 - [ ] `fno:MethodMapping`
+- [ ] Add `func.__doc__` as `doap:description`
 
 ## Usage example (`main.py`)
 
 The example describes the following Python function
-```python
-# Python function to describe
-class Iri:
-    pass
 
+```python
 # Usage example: create FnO description graph for given Python function
 # 
 
-def executeRMLMapper(
-        fpathMapping : Iri,
-        fpathOutput: Iri,
-        fpathRMLMapperJar: Iri,
-        fpathRMLMapperTempFolder: Iri
-) -> Iri:
-    # ...
-    result: Iri
-    # ...
-    return result
+class Iri:
+    pass
 
+# Python function to describe
+def executeRMLMapper(fpathMapping : Iri, fpathOutput: Iri, fpathRMLMapperJar: Iri,
+        fpathRMLMapperTempFolder: Iri, sources: dict) -> Iri:
+    return Iri()
 
 # Python type -> target type
 type_map = {
-    'Iri': rdflib.XSD.anyURI
+    'Iri': rdflib.XSD.anyURI,
+    'dict': NAMESPACES['ex']['recordStringToAny'] # ~ TypeScript Record<string,any>
 }
+# 
+fnod = FnODescriptor()
+function_description_graph = fnod.create_description_graph(
+    executeRMLMapper, type_map)
+function_description_graph.print()
+function_description_graph.serialize(destination='params_and_outputs.ttl', format='turtle')
 ```
 
 You can run the example as follows:
@@ -58,6 +59,7 @@ python src/main.py
 The FnO descriptions will be written to the standard output.
 
 ```Turtle
+@prefix ex: <http://www.example.com#> .
 @prefix fno: <https://w3id.org/function/ontology#> .
 @prefix fnom: <https://w3id.org/function/vocabulary/mapping#> .
 @prefix fns: <http://example.com/functions#> .
@@ -83,27 +85,36 @@ fns:fpathRMLMapperTempFolderParameterMapping a fno:ParameterMapping,
     fnom:functionParameter fns:fpathRMLMapperTempFolderParameter ;
     fnom:implementationParameterPosition 3 .
 
-fns:returnOutputMapping a fno:DefaultReturnMapping,
-        fno:ReturnMapping ;
+fns:returnOutputMapping a fno:ReturnMapping,
+        fnom:DefaultReturnMapping ;
     fnom:functionOutput fns:returnOutput .
 
+fns:sourcesParameterMapping a fno:ParameterMapping,
+        fnom:PositionParameterMapping ;
+    fnom:functionParameter fns:sourcesParameter ;
+    fnom:implementationParameterPosition 4 .
+
 fns:fpathMappingParameter a fno:Parameter ;
-    fno:predicate "fpathMapping" ;
+    fno:predicate fns:fpathMapping ;
     fno:type xsd:anyURI .
 
 fns:fpathOutputParameter a fno:Parameter ;
-    fno:predicate "fpathOutput" ;
+    fno:predicate fns:fpathOutput ;
     fno:type xsd:anyURI .
 
 fns:fpathRMLMapperJarParameter a fno:Parameter ;
-    fno:predicate "fpathRMLMapperJar" ;
+    fno:predicate fns:fpathRMLMapperJar ;
     fno:type xsd:anyURI .
 
 fns:fpathRMLMapperTempFolderParameter a fno:Parameter ;
-    fno:predicate "fpathRMLMapperTempFolder" ;
+    fno:predicate fns:fpathRMLMapperTempFolder ;
     fno:type xsd:anyURI .
 
 fns:returnOutput a fno:Output ;
-    fno:predicate "return" ;
+    fno:predicate fns:return ;
     fno:type xsd:anyURI .
+
+fns:sourcesParameter a fno:Parameter ;
+    fno:predicate fns:sources ;
+    fno:type ex:recordStringToAny .
 ```
