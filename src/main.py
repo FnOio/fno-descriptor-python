@@ -3,13 +3,14 @@ import operator
 import rdflib
 from fno_descriptor import FnODescriptor
 
-# Python function to describe
-class Iri:
-    pass
-
 # Usage example: create FnO description graph for given Python function
 # 
 
+
+class Iri:
+    pass
+
+# Python function to describe
 def executeRMLMapper(
         fpathMapping : Iri,
         fpathOutput: Iri,

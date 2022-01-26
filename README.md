@@ -39,6 +39,8 @@ python src/main.py
 
 ### Output
 
+The FnO descriptions will be written to the standard output.
+
 ```Turtle
 @prefix fno: <https://w3id.org/function/ontology#> .
 @prefix fnom: <https://w3id.org/function/vocabulary/mapping#> .
