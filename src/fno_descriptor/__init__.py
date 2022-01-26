@@ -118,9 +118,41 @@ class FnODescriptor:
 
         return g
 
-
     @staticmethod
-    def create_description_graph(f, type_map: dict) -> rdflib.Graph:
+    def describe_function(f, type_map: dict) -> rdflib.Graph:
+        """
+        fns:functionC
+            a fno:Function ;
+            dcterms:description "function C "@en ;
+            fno:expects ( fns:str0Parameter ) ;
+            fno:returns ( fns:strOutput )
+        .
+
+        # todo: dcterms:description "function C "@en ; can be extracted from __doc__
+
+        """
+        in_out_dict = FnODescriptor.create_description_dict(f, type_map)
+        suff = 'Function'
+        name = f.__name__
+        pname = f'{name}{suff}'
+        g = rdflib.Graph()
+        Util.bind_namespaces(g)
+        # Function resource
+        s = FNS[pname]
+        expects = None
+        returns = None
+        triples = [
+            # Function
+            (s,RDF.type, FNO['Function']),
+            (s,FNO['predicate'], rdflib.Literal(name)),
+            (s,FNO['expects'], expects),
+            (s,FNO['returns'], returns),
+        ]
+        [ g.add(x) for x in triples ]
+        return g
+        
+    @staticmethod
+    def create_description_dict(f, type_map: dict) -> dict:
         """
         """
         function_meta = FnODescriptor.extract_function_metadata(f, type_map)
@@ -133,9 +165,25 @@ class FnODescriptor:
             pname: FnODescriptor.describe_output(**pannot)
             for pname, pannot in function_meta['output'].items()}
 
+        return {
+            'input': parameter_descriptions_dict,
+            'output': output_descriptions_dict
+        }
+
+
+    @staticmethod
+    def create_description_graph(f, type_map: dict) -> rdflib.Graph:
+        """
+        
+        """
+        description_dict = FnODescriptor.create_description_dict(f, type_map)
+        
         # Combine parameter + output descriptions and generate RDF graph
         function_description_graph = functools.reduce(
-            operator.add,[ *parameter_descriptions_dict.values(), 
-            *output_descriptions_dict.values() ])
+            operator.add,[ 
+                *description_dict['input'].values(), 
+                *description_dict['output'].values(), 
+                # TODO: https://gitlab.ilabt.imec.be/fno/fno-descriptor-python/-/issues/2
+            ])
 
         return function_description_graph
