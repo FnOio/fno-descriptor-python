@@ -67,7 +67,7 @@ class FnODescriptor:
         triples = [
             # parameter
             (s,RDF.type, FNO['Parameter']),
-            (s,FNO['predicate'], rdflib.Literal(name)),
+            (s,FNO['predicate'], FNS[name]),
             (s,FNO['type'], ptype),
             # parameter mapping
             (s_param_mapping, RDF.type, FNO['ParameterMapping']),
@@ -106,11 +106,12 @@ class FnODescriptor:
         triples = [
             # parameter
             (s,RDF.type, FNO['Output']),
-            (s,FNO['predicate'], rdflib.Literal(name)),
+            (s,FNO['predicate'], FNS[name]),
             (s,FNO['type'], ptype),
             # parameter mapping
             (s_param_mapping, RDF.type, FNO['ReturnMapping']),
-            (s_param_mapping, RDF.type, FNO['DefaultReturnMapping']),
+            # Note: namespace for DefaultReturnMapping is FNOM!
+            (s_param_mapping, RDF.type, FNOM['DefaultReturnMapping']),
             (s_param_mapping, FNOM['functionOutput'], s)
         ]
         [ g.add(x) for x in triples ]
