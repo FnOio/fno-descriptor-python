@@ -131,24 +131,41 @@ class FnODescriptor:
         # todo: dcterms:description "function C "@en ; can be extracted from __doc__
 
         """
-        in_out_dict = FnODescriptor.create_description_dict(f, type_map)
-        suff = 'Function'
-        name = f.__name__
-        pname = f'{name}{suff}'
+        #
         g = rdflib.Graph()
         Util.bind_namespaces(g)
         # Function resource
+        suff = 'Function'
+        name = f.__name__
+        pname = f'{name}{suff}'
+
         s = FNS[pname]
-        expects = None
-        returns = None
         triples = [
             # Function
             (s,RDF.type, FNO['Function']),
             (s,FNO['predicate'], rdflib.Literal(name)),
-            (s,FNO['expects'], expects),
-            (s,FNO['returns'], returns),
         ]
         [ g.add(x) for x in triples ]
+
+        g_params_outputs = FnODescriptor.create_description_graph(f,type_map)
+
+
+        # create fno:expects container 
+        c_expects = rdflib.Container(g, 
+                                     rdflib.BNode(), 
+                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''', initNs=NAMESPACES) ], 
+                                     rtype='List')
+        # create fno:returns container 
+        c_returns = rdflib.Container(g, 
+                                     rdflib.BNode(), 
+                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''', initNs=NAMESPACES) ], 
+                                     rtype='List')
+        
+        g += g_params_outputs
+
+        g.add((s, FNO['expects'], c_expects.uri))
+        g.add((s, FNO['returns'], c_returns.uri))
+
         return g
         
     @staticmethod
