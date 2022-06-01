@@ -55,7 +55,7 @@ class FnODescriptor:
         :param ptype:
         :param required: TODO
         :param index:
-        :return:
+        :return: RDFGraph
         """
         suff = 'Parameter'
         pname = f'{name}{suff}'
@@ -150,17 +150,35 @@ class FnODescriptor:
         g_params_outputs = FnODescriptor.create_description_graph(f,type_map)
 
 
-        # create fno:expects container 
-        c_expects = rdflib.Container(g, 
-                                     rdflib.BNode(), 
-                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''', initNs=NAMESPACES) ], 
+        # create fno:expects container
+        # v1
+        c_expects = rdflib.Container(g,
+                                     rdflib.BNode(),
+                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''', initNs=NAMESPACES) ],
                                      rtype='List')
-        # create fno:returns container 
-        c_returns = rdflib.Container(g, 
-                                     rdflib.BNode(), 
-                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''', initNs=NAMESPACES) ], 
+        # v2
+        # c_expects = g.collection(rdflib.URIRef('http://www.example.org#myList'))
+        # for x in g_params_outputs.query(
+        #     '''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''',
+        #     initNs=NAMESPACES):
+        #     c_expects += [ x['s'] ]
+
+
+        # create fno:returns container
+        # v1
+        c_returns = rdflib.Container(g,
+                                     rdflib.BNode(),
+                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''', initNs=NAMESPACES) ],
                                      rtype='List')
-        
+
+        # v2
+        # c_returns = g.collection(
+        #     rdflib.URIRef('http://www.example.org#myOutputList'))
+        # for x in g_params_outputs.query(
+        #         '''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''',
+        #         initNs=NAMESPACES):
+        #     c_returns += [x['s']]
+
         g += g_params_outputs
 
         g.add((s, FNO['expects'], c_expects.uri))
