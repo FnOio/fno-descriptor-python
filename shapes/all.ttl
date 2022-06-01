@@ -139,7 +139,7 @@ fnosh:parameterMappingShape
     sh:path fnom:functionParameter ;
     sh:minCount 1;
     sh:maxCount 1;
-    sh:node fnosh:FunctionShape
+    sh:node fnosh:ParameterShape
   ] ;
   sh:property [
     sh:path fnom:constantParameterValue;
@@ -225,7 +225,7 @@ fnosh:ListShape
 	rdfs:comment "A shape describing well-formed RDF lists. Currently does not check for non-recursion. This could be expressed using SHACL-SPARQL."@en ;
 	rdfs:seeAlso <https://www.w3.org/TR/shacl/#syntax-rule-SHACL-list> ;
 	sh:property [
-		sh:path [ sh:zeroOrMorePath rdf:rest ] ;
+		sh:path ( [ sh:zeroOrMorePath rdf:rest ] rdf:first ) ;
 		rdfs:comment "Each list member (including this node) must be have the shape fnosh:ListNodeShape."@en ;
 		# sh:hasValue rdf:nil ;
 		# sh:node fnosh:ListNodeShape ;
