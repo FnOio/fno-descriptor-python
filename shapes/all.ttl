@@ -101,7 +101,8 @@ fnosh:ExecutionShape
 
 fnosh:MappingShape
   a sh:NodeShape ;
-  sh:targetClass fno:mapping ;
+  sh:targetClass fno:Mapping ;
+  
   sh:property [
     sh:path fno:methodMapping ;
     sh:minCount 1;
