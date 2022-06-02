@@ -8,6 +8,11 @@ in Python,
 and generates its corresponding FnO descriptions by leveraging Python
 type-hinting.
 
+## Dependencies
+
+- `rdflib`
+- `pyshacl`
+
 ## Supported
 
 - [x] `fno:Parameter`
@@ -132,3 +137,49 @@ fns:sourcesParameter a fno:Parameter ;
     fno:predicate fns:sources ;
     fno:type ex:recordStringToAny .
 ```
+
+## Testing
+
+### SHACL
+
+```bash
+shacl v --shapes $WORKFLOWS/function-ontology/shape.ttl --data function_description.ttl > shacl_validation_result.ttl
+```
+
+<details>
+<summary>
+pointers
+</summary>
+
+- https://www.w3.org/TR/shacl/#syntax-rule-SHACL-list
+- SHACL UCR/uc26: https://www.w3.org/TR/shacl-ucr/#uc26:-rdf:lists-and-ordered-data
+- https://www.topquadrant.com/constraints-on-rdflists-using-shacl/
+- [`pyshacl` feature matrix](https://github.com/RDFLib/pySHACL/blob/master/FEATURES.md)
+
+</details>
+
+SHACL background
+- Property shapes specify constraints about the values that can be reached from a focus node by some path. sh:property associates a shape with a property shape.
+
+
+
+<details>
+<summary>
+debugging fno shape
+</summary>
+
+```turtle
+👉 sum_002.ttl
+Validation Report
+Conforms: False
+Results (1):
+Constraint Violation in NodeConstraintComponent (http://www.w3.org/ns/shacl#NodeConstraintComponent):
+	Severity: sh:Violation
+	Source Shape: [ sh:maxCount Literal("1", datatype=xsd:integer) ; sh:minCount Literal("1", datatype=xsd:integer) ; sh:node fnosh:ListShape ; sh:path fno:expects ]
+	Focus Node: ex:sumFunction
+	Value Node: [ rdf:_1 ex:intParameterA ; rdf:_2 ex:intParameterB ; rdf:type rdf:List ]
+	Result Path: fno:expects
+	Message: Value does not conform to Shape fnosh:ListShape
+```
+</details>
+
