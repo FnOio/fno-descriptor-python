@@ -184,6 +184,52 @@ class FnODescriptor:
         g.add((s, FNO['expects'], c_expects.uri))
         g.add((s, FNO['returns'], c_returns.uri))
 
+        # add fno:Mapping
+        # At this point, the function description graph contains
+        # - parameter descriptions & parameter mappings
+        # - return descriptions & return mappings
+
+        # Build the fno:Mapping (https://fno.io/spec/#fno-Mapping)
+        # The fno:Mapping maps a fno:Function to a (part) of an implementation.
+        # It comprises of
+        # - the mapping of the method name [ ]
+        # - the mapping of parameters [x]
+        # - the mapping of the outputs [x]
+        """ example of a fno:Mapping's methodMapping
+        fno:methodMapping    [ a                fnom:StringMethodMapping ;
+                           fnom:method-name "doLeftPadding" ] ;
+        """
+
+
+
+
+
+        # # TODO: create fno:Mapping (the mapping links the function description to the implementation).
+        # #   It contains 3 components (methodmapping, parameter mapping, output mapping)
+        # # ⚠️ below is scratch code
+        g_method_mapping = rdflib.Graph()
+        # #g_method_mapping.add(s, FNO['']
+        # #g_method_mapping.add(bn_method_mapping, RDF.type, FNO['Mapping'])
+        s_mapping = FNS[f'{name}_MethodMapping']
+        bn_method_mapping = rdflib.BNode()
+        mm_triples = [
+                (s_mapping, RDF.type, FNO['Mapping']),
+                (s_mapping, FNO['methodMapping'], bn_method_mapping),
+                (bn_method_mapping, RDF.type, FNOM['StringMethodMapping']),
+                (bn_method_mapping, FNOM['method-name'], rdflib.Literal(name))
+        ]
+        for t in mm_triples:
+            try:
+                g_method_mapping.add(t)
+            except Exception as e:
+                print(f'''
+                Exception: {e}
+                For triple: {t}
+                ''')
+
+        # add method mapping graph to result graph
+        g += g_method_mapping
+
         return g
         
     @staticmethod
@@ -204,7 +250,6 @@ class FnODescriptor:
             'input': parameter_descriptions_dict,
             'output': output_descriptions_dict
         }
-
 
     @staticmethod
     def create_description_graph(f, type_map: dict) -> rdflib.Graph:

@@ -28,7 +28,9 @@ for fdg_key, function_description_graph in function_description_graphs.items():
     vr = pyshacl.validate(function_description_graph,
                           shacl_graph=shg,
                           inference='rdfs',
-                          advanced=True
+                          advanced=True,
+                          allow_infos=True,
+                          allow_warnings=True
 
                           )
     conforms, results_graph, results_text = vr

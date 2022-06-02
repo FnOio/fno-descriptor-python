@@ -21,8 +21,9 @@ def mysum(a: int, b: int) -> int:
     return a + b
 ###############################################################################
 # Python type -> target type
+# TODO: use defaults
 type_map = {
-    'int': rdflib.XSD.integer,
+    'int': rdflib.XSD.int,
 }
 
 
@@ -30,10 +31,14 @@ function_description_graph = fd.describe_function(
     mysum, type_map)
 
 function_description_graph.print()
-# function_description_graph.print()
+
+
+
+
+##### SHACL
 shacl_graphs = {
         os.path.basename(x): load_graph(x)
-        for x in [ '../shapes/all.ttl' ]
+        for x in [ '../shapes/function_mappings.ttl' ]
 }
 
 print('shacl graphs: ' , shacl_graphs.keys())
