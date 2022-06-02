@@ -2,3 +2,7 @@ __pycache__/
 *.py[cod]
 
 src/.ipynb_checkpoints/
+
+.ipynb_checkpoints/
+
+.idea/
