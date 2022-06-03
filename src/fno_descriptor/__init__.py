@@ -149,35 +149,35 @@ class FnODescriptor:
 
         g_params_outputs = FnODescriptor.create_description_graph(f,type_map)
 
+        def create_rdf_list(g, elements):
+            """ Helper to create an RDF List with the given elements.
+            :param g: RDF Graph on which the RDF list will be attached.
+
+            """
+            return rdflib.Container(g,
+                             rdflib.BNode(),
+                             seq=elements,
+                             rtype='List')
 
         # create fno:expects container
-        # v1
-        c_expects = rdflib.Container(g,
-                                     rdflib.BNode(),
-                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''', initNs=NAMESPACES) ],
-                                     rtype='List')
-        # v2
-        # c_expects = g.collection(rdflib.URIRef('http://www.example.org#myList'))
-        # for x in g_params_outputs.query(
-        #     '''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''',
-        #     initNs=NAMESPACES):
-        #     c_expects += [ x['s'] ]
+        c_expects = create_rdf_list(
+                g,
+                [x['s']
+                 for x in g_params_outputs.query(
+                        '''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''',
+                        initNs=NAMESPACES)
+                ]
+        )
 
-
-        # create fno:returns container
-        # v1
-        c_returns = rdflib.Container(g,
-                                     rdflib.BNode(),
-                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''', initNs=NAMESPACES) ],
-                                     rtype='List')
-
-        # v2
-        # c_returns = g.collection(
-        #     rdflib.URIRef('http://www.example.org#myOutputList'))
-        # for x in g_params_outputs.query(
-        #         '''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''',
-        #         initNs=NAMESPACES):
-        #     c_returns += [x['s']]
+        # create fno:returns list
+        c_returns = create_rdf_list(
+                g,
+                [x['s']
+                 for x in g_params_outputs.query(
+                        '''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''',
+                        initNs=NAMESPACES)
+                 ]
+        )
 
         g += g_params_outputs
 
@@ -195,21 +195,9 @@ class FnODescriptor:
         # - the mapping of the method name [ ]
         # - the mapping of parameters [x]
         # - the mapping of the outputs [x]
-        """ example of a fno:Mapping's methodMapping
-        fno:methodMapping    [ a                fnom:StringMethodMapping ;
-                           fnom:method-name "doLeftPadding" ] ;
-        """
 
-
-
-
-
-        # # TODO: create fno:Mapping (the mapping links the function description to the implementation).
-        # #   It contains 3 components (methodmapping, parameter mapping, output mapping)
-        # # ⚠️ below is scratch code
         g_method_mapping = rdflib.Graph()
-        # #g_method_mapping.add(s, FNO['']
-        # #g_method_mapping.add(bn_method_mapping, RDF.type, FNO['Mapping'])
+
         s_mapping = FNS[f'{name}_MethodMapping']
         bn_method_mapping = rdflib.BNode()
         mm_triples = [

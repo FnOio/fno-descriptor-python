@@ -129,6 +129,9 @@ fnosh:stringMethodMappingShape
   sh:targetClass fnom:StringMethodMapping ;
   sh:property [
     sh:path fnom:method-name ;
+    # TODO: verify whether method-name cardinality constraints are correct
+    sh:minCount 1; 
+    sh:maxCount 1;
     sh:datatype xsd:string ;
   ] ;
   .
