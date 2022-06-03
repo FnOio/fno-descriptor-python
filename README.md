@@ -23,6 +23,7 @@ type-hinting.
 - [ ] `fno:Mapping` 
 - [ ] `fno:MethodMapping`
 - [ ] Add `func.__doc__` as `doap:description`
+- [ ] SHACL validation of generated FnO descriptions
 
 ## Usage example (`main.py`)
 
