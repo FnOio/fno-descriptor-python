@@ -1,3 +1,5 @@
+import typing
+
 import rdflib
 from fno_descriptor import FnODescriptor as fd, NAMESPACES
 import os
@@ -15,41 +17,75 @@ def load_graph(fpath) -> rdflib.Graph:
     return g
 
 ###############################################################################
-def mysum(a: int, b: int) -> int:
-    """ Computes the sum of a and b.
-    """
-    return a + b
+
+# example: basic sum
+
+
+# example: KG Construction
+
+
+
 ###############################################################################
-# Python type -> target type
-# TODO: use defaults
-type_map = {
-    'int': rdflib.XSD.int,
-}
 
+def get_shacl_graph():
+    return load_graph('../shapes/all.ttl')
+def run_test(f,
+             type_map,
+             shacl_graph,
+             print_function_description_graph = False):
+    print(f'👉 testing function: {f.__name__}')
+    function_description_graph = fd.describe_function(
+            f, type_map)
 
-function_description_graph = fd.describe_function(
-    mysum, type_map)
+    if print_function_description_graph:
+        function_description_graph.print()
 
-function_description_graph.print()
-
-
-
-
-##### SHACL
-shacl_graphs = {
-        os.path.basename(x): load_graph(x)
-        for x in [ '../shapes/function_mappings.ttl' ]
-}
-
-print('shacl graphs: ' , shacl_graphs.keys())
-
-# validation reports
-for shg_name, shg in shacl_graphs.items():
-    print(f'👉 {shg_name}')
-    vr = pyshacl.validate(function_description_graph, shacl_graph=shg)
+    vr = pyshacl.validate(function_description_graph,
+                          shacl_graph=shacl_graph)
     conforms, results_graph, results_text = vr
     print(results_text)
+    assert conforms
 
-#fpath_function_description = os.path.join(OUTPUT_DIR, 'function_description.ttl')
-#function_description_graph.serialize(destination=fpath_function_description, format='turtle')
 
+def test_sum():
+    # test function
+    def mysum(a: int, b: int) -> int:
+        """ Computes the sum of a and b.
+        """
+        return a + b
+
+    type_map = {
+            'int': rdflib.XSD.int,
+    }
+    shg = get_shacl_graph()
+    run_test(mysum, type_map, shg,)
+
+
+
+def test_kgc():
+    # Python type -> target type
+    type_map = {
+            'int': rdflib.XSD.int,
+            'Iri': rdflib.XSD.anyURI,
+    }
+
+    class Iri:
+        pass
+
+    # Python function to describe
+    def generate_rdf(mapping: Iri) -> Iri:
+        """ Generates RDF using the given RML Mapping.
+        Returns the IRI to the output result.
+        """
+        return Iri()
+
+    def publish(inputRDF: Iri) -> Iri:
+        pass
+
+
+    run_test(generate_rdf, type_map, shacl_graph=get_shacl_graph())
+    run_test(publish, type_map, shacl_graph=get_shacl_graph())
+
+
+test_sum()
+test_kgc()

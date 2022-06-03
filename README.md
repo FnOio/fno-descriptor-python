@@ -20,10 +20,11 @@ type-hinting.
 - [x] `fno:Output`
 - [x] `fno:ReturnMapping`
 - [x] `fno:Function`
-- [ ] `fno:Mapping` 
-- [ ] `fno:MethodMapping`
+- [x] `fno:Mapping` 
+- [x] `fno:MethodMapping`
 - [ ] Add `func.__doc__` as `doap:description`
-- [ ] SHACL validation of generated FnO descriptions
+- [x] SHACL validation of generated FnO descriptions
+- [ ] Use default type map
 
 ## Usage example (`main.py`)
 

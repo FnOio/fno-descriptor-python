@@ -13,8 +13,11 @@ def executeRMLMapper(fpathMapping : Iri, fpathOutput: Iri, fpathRMLMapperJar: Ir
         fpathRMLMapperTempFolder: Iri, sources: dict) -> Iri:
     return Iri()
 
+
 def publish(inputRDF: Iri) -> Iri:
     pass
+
+
 
 # Python type -> target type
 type_map = {
@@ -24,7 +27,7 @@ type_map = {
 print(type_map)
 fnod = FnODescriptor()
 function_description_graph = fnod.describe_function(
-    executeRMLMapper, type_map)
+    publish, type_map)
 function_description_graph.print()
 function_description_graph.serialize(destination='function_description.ttl', format='turtle')
 
