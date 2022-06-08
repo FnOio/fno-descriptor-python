@@ -55,7 +55,7 @@ class FnODescriptor:
         :param ptype:
         :param required: TODO
         :param index:
-        :return:
+        :return: RDFGraph
         """
         suff = 'Parameter'
         pname = f'{name}{suff}'
@@ -149,22 +149,74 @@ class FnODescriptor:
 
         g_params_outputs = FnODescriptor.create_description_graph(f,type_map)
 
+        def create_rdf_list(g, elements):
+            """ Helper to create an RDF List with the given elements.
+            :param g: RDF Graph on which the RDF list will be attached.
 
-        # create fno:expects container 
-        c_expects = rdflib.Container(g, 
-                                     rdflib.BNode(), 
-                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''', initNs=NAMESPACES) ], 
-                                     rtype='List')
-        # create fno:returns container 
-        c_returns = rdflib.Container(g, 
-                                     rdflib.BNode(), 
-                                     seq=[ x['s'] for x in g_params_outputs.query('''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''', initNs=NAMESPACES) ], 
-                                     rtype='List')
-        
+            """
+            return rdflib.Container(g,
+                             rdflib.BNode(),
+                             seq=elements,
+                             rtype='List')
+
+        # create fno:expects container
+        c_expects = create_rdf_list(
+                g,
+                [x['s']
+                 for x in g_params_outputs.query(
+                        '''SELECT ?s ?p ?o WHERE {  ?s a fno:Parameter }''',
+                        initNs=NAMESPACES)
+                ]
+        )
+
+        # create fno:returns list
+        c_returns = create_rdf_list(
+                g,
+                [x['s']
+                 for x in g_params_outputs.query(
+                        '''SELECT ?s ?p ?o WHERE {  ?s a fno:Output }''',
+                        initNs=NAMESPACES)
+                 ]
+        )
+
         g += g_params_outputs
 
         g.add((s, FNO['expects'], c_expects.uri))
         g.add((s, FNO['returns'], c_returns.uri))
+
+        # add fno:Mapping
+        # At this point, the function description graph contains
+        # - parameter descriptions & parameter mappings
+        # - return descriptions & return mappings
+
+        # Build the fno:Mapping (https://fno.io/spec/#fno-Mapping)
+        # The fno:Mapping maps a fno:Function to a (part) of an implementation.
+        # It comprises of
+        # - the mapping of the method name [ ]
+        # - the mapping of parameters [x]
+        # - the mapping of the outputs [x]
+
+        g_method_mapping = rdflib.Graph()
+
+        s_mapping = FNS[f'{name}_MethodMapping']
+        bn_method_mapping = rdflib.BNode()
+        mm_triples = [
+                (s_mapping, RDF.type, FNO['Mapping']),
+                (s_mapping, FNO['methodMapping'], bn_method_mapping),
+                (bn_method_mapping, RDF.type, FNOM['StringMethodMapping']),
+                (bn_method_mapping, FNOM['method-name'], rdflib.Literal(name))
+        ]
+        for t in mm_triples:
+            try:
+                g_method_mapping.add(t)
+            except Exception as e:
+                print(f'''
+                Exception: {e}
+                For triple: {t}
+                ''')
+
+        # add method mapping graph to result graph
+        g += g_method_mapping
 
         return g
         
@@ -186,7 +238,6 @@ class FnODescriptor:
             'input': parameter_descriptions_dict,
             'output': output_descriptions_dict
         }
-
 
     @staticmethod
     def create_description_graph(f, type_map: dict) -> rdflib.Graph:
